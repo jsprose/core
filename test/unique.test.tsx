@@ -9,16 +9,11 @@ import {
     defineUniqueWrapper,
     isUnique,
     PROSE_REGISTRY,
+    isolateProse,
     type NoTagChildren,
 } from '@jsprose/core';
 
-import {
-    Bold,
-    boldRegistryItem,
-    isolateProse,
-    P,
-    paragraphRegistryItem,
-} from './__reusable';
+import { Bold, boldRegistryItem, P, paragraphRegistryItem } from './__reusable';
 
 describe('defineUnique', () => {
     it('should throw when trying to double-assign rawElement', () => {

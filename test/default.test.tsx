@@ -5,13 +5,13 @@ import {
     inlinersSchema,
     PROSE_REGISTRY,
     schemaKind,
+    isolateProse,
 } from '@jsprose/core';
 
 import {
     Bold,
     boldRegistryItem,
     boldSchema,
-    isolateProse,
     P,
     paragraphRegistryItem,
     paragraphSchema,

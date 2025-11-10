@@ -7,14 +7,10 @@ import {
     defineTag,
     defineRegistryItem,
     type NoTagChildren,
+    isolateProse,
 } from '@jsprose/core';
 
-import {
-    isolateProse,
-    P,
-    paragraphRegistryItem,
-    boldRegistryItem,
-} from './__reusable';
+import { P, paragraphRegistryItem, boldRegistryItem } from './__reusable';
 
 describe('resolveRawElement', () => {
     it('should transform RawElement to ProseElement', async () => {

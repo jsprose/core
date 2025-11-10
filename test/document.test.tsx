@@ -4,9 +4,10 @@ import {
     defineDocument,
     insertDocumentId,
     PROSE_REGISTRY,
+    isolateProse,
 } from '@jsprose/core';
 
-import { isolateProse, P, paragraphRegistryItem } from './__reusable';
+import { P, paragraphRegistryItem } from './__reusable';
 
 describe('defineDocument', () => {
     it('should generate auto ID when no ID is provided', () => {

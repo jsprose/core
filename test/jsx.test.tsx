@@ -1,8 +1,8 @@
 import { expect, it } from 'vitest';
 
-import { PROSE_REGISTRY } from '@jsprose/core';
+import { PROSE_REGISTRY, isolateProse } from '@jsprose/core';
 
-import { isolateProse, P, paragraphRegistryItem } from './__reusable';
+import { P, paragraphRegistryItem } from './__reusable';
 
 it('should accept non-tag functions', () => {
     isolateProse(() => {

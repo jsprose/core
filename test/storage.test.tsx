@@ -14,9 +14,8 @@ import {
     type GenericStorage,
     type ProseElement,
     type AnySchema,
+    isolateProse,
 } from '@jsprose/core';
-
-import { isolateProse } from './__reusable';
 
 describe('fillStorage', () => {
     // Define a schema with storage
