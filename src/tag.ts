@@ -213,15 +213,19 @@ export type NoTagChildren = { children?: never };
  */
 export type TagChildren = { children: {} };
 
-interface TagDefinition<TSchema extends AnySchema> {
+export interface TagDefinition<TSchema extends AnySchema> {
     tagName: string;
     schema: TSchema;
 }
 
-type ProcessTagFunction<
+export type ProcessTagFunction<
     TSchema extends AnySchema,
     TTagDefinition extends TagDefinition<TSchema>,
     TConfigurableTagProps extends ConfigurableTagProps,
+    TElement extends RawElement<TSchema> = RawElement<
+        TTagDefinition['schema'],
+        TTagDefinition['tagName']
+    >,
 > = (args: {
     tagName: TTagDefinition['tagName'];
     props: TagProps<
@@ -230,7 +234,7 @@ type ProcessTagFunction<
         TConfigurableTagProps
     >;
     children: NormalizedChildren;
-    element: RawElement<TTagDefinition['schema'], TTagDefinition['tagName']>;
+    element: TElement;
     registry: Registry;
 }) => void;
 
