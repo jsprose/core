@@ -34,7 +34,7 @@ export type Tag<
     schemaName: TSchema['name'];
 } & ((
     props: TagProps<TTagName, TSchema, TConfigurableTagProps>,
-) => RawElement<TSchema>);
+) => RawElement<TSchema, TTagName>);
 
 /**
  * General prose tag.

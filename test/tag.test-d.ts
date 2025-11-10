@@ -91,25 +91,28 @@ describe('defineTag', () => {
                         level: 1 | 2 | 3;
                     } & TagChildren
                 >,
-            ) => RawElement<{
-                name: 'heading';
-                type: 'block';
-                linkable: true;
-                Data: {
-                    level: 1 | 2 | 3;
-                };
-                Storage: undefined;
-                Children: [
-                    {
-                        name: 'text';
-                        type: 'inliner';
-                        linkable: false;
-                        Data: string;
-                        Storage: undefined;
-                        Children: undefined;
-                    },
-                ];
-            }>)
+            ) => RawElement<
+                {
+                    name: 'heading';
+                    type: 'block';
+                    linkable: true;
+                    Data: {
+                        level: 1 | 2 | 3;
+                    };
+                    Storage: undefined;
+                    Children: [
+                        {
+                            name: 'text';
+                            type: 'inliner';
+                            linkable: false;
+                            Data: string;
+                            Storage: undefined;
+                            Children: undefined;
+                        },
+                    ];
+                },
+                'Heading'
+            >)
         >();
     });
 });

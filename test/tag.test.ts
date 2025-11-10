@@ -52,6 +52,31 @@ const headingSchema = defineSchema({
     Children: (typeof textSchema)[];
 }>();
 
+// Create a shared registry for tests
+const testRegistry = new Registry();
+testRegistry.addItem(defineRegistryItem({ schema: boldSchema }));
+testRegistry.addItem(defineRegistryItem({ schema: paragraphSchema }));
+testRegistry.addItem(defineRegistryItem({ schema: headingSchema }));
+
+// Shared tag definitions
+const textTag = defineTag({
+    tagName: 'Text',
+    schema: textSchema,
+})<{ children?: never }>(({ element }) => {
+    element.data = 'Hello';
+    element.storageKey = undefined;
+    element.children = undefined;
+});
+
+const boldTag = defineTag({
+    tagName: 'Bold',
+    schema: boldSchema,
+})<{ children: {} }>(({ element, children }) => {
+    element.data = undefined;
+    element.storageKey = undefined;
+    element.children = children as any;
+});
+
 // Helper to create mock elements
 function makeTextElement(): RawElement<typeof textSchema> {
     return {
@@ -228,74 +253,71 @@ describe('ensureTagChildren', () => {
 });
 
 describe('ensureTagBlockChildren', () => {
-    const registry = new Registry();
-    registry.addItem(defineRegistryItem({ schema: boldSchema }));
-    registry.addItem(defineRegistryItem({ schema: paragraphSchema }));
-    registry.addItem(defineRegistryItem({ schema: headingSchema }));
-
     it('should pass when children has only block elements', () => {
         expect(() =>
             ensureTagBlockChildren(
                 'TestTag',
                 [makeParagraphElement()],
-                registry,
+                testRegistry,
             ),
         ).not.toThrow();
     });
 
     it('should throw when children is undefined', () => {
         expect(() =>
-            ensureTagBlockChildren('TestTag', undefined, registry),
+            ensureTagBlockChildren('TestTag', undefined, testRegistry),
         ).toThrow(ProseError);
     });
 
     it('should throw when children contains inliner elements', () => {
         expect(() =>
-            ensureTagBlockChildren('TestTag', [makeTextElement()], registry),
+            ensureTagBlockChildren(
+                'TestTag',
+                [makeTextElement()],
+                testRegistry,
+            ),
         ).toThrow(ProseError);
     });
 });
 
 describe('ensureTagBlockChild', () => {
-    const registry = new Registry();
-    registry.addItem(defineRegistryItem({ schema: boldSchema }));
-    registry.addItem(defineRegistryItem({ schema: paragraphSchema }));
-    registry.addItem(defineRegistryItem({ schema: headingSchema }));
-
     it('should pass when child is a block element', () => {
         expect(() =>
-            ensureTagBlockChild('TestTag', [makeParagraphElement()], registry),
+            ensureTagBlockChild(
+                'TestTag',
+                [makeParagraphElement()],
+                testRegistry,
+            ),
         ).not.toThrow();
     });
 
     it('should throw when children is undefined', () => {
         expect(() =>
-            ensureTagBlockChild('TestTag', undefined, registry),
+            ensureTagBlockChild('TestTag', undefined, testRegistry),
         ).toThrow(ProseError);
     });
 
     it('should throw when child is an inliner element', () => {
         expect(() =>
-            ensureTagBlockChild('TestTag', [makeTextElement()], registry),
+            ensureTagBlockChild('TestTag', [makeTextElement()], testRegistry),
         ).toThrow(ProseError);
     });
 });
 
 describe('ensureTagInlinerChildren', () => {
-    const registry = new Registry();
-    registry.addItem(defineRegistryItem({ schema: boldSchema }));
-    registry.addItem(defineRegistryItem({ schema: paragraphSchema }));
-    registry.addItem(defineRegistryItem({ schema: headingSchema }));
-
     it('should pass when children has only inliner elements', () => {
         expect(() =>
-            ensureTagInlinerChildren('TestTag', [makeTextElement()], registry),
+            ensureTagInlinerChildren(
+                'TestTag',
+                [makeTextElement()],
+                testRegistry,
+            ),
         ).not.toThrow();
     });
 
     it('should throw when children is undefined', () => {
         expect(() =>
-            ensureTagInlinerChildren('TestTag', undefined, registry),
+            ensureTagInlinerChildren('TestTag', undefined, testRegistry),
         ).toThrow(ProseError);
     });
 
@@ -304,27 +326,22 @@ describe('ensureTagInlinerChildren', () => {
             ensureTagInlinerChildren(
                 'TestTag',
                 [makeParagraphElement()],
-                registry,
+                testRegistry,
             ),
         ).toThrow(ProseError);
     });
 });
 
 describe('ensureTagInlinerChild', () => {
-    const registry = new Registry();
-    registry.addItem(defineRegistryItem({ schema: boldSchema }));
-    registry.addItem(defineRegistryItem({ schema: paragraphSchema }));
-    registry.addItem(defineRegistryItem({ schema: headingSchema }));
-
     it('should pass when child is an inliner element', () => {
         expect(() =>
-            ensureTagInlinerChild('TestTag', [makeTextElement()], registry),
+            ensureTagInlinerChild('TestTag', [makeTextElement()], testRegistry),
         ).not.toThrow();
     });
 
     it('should throw when children is undefined', () => {
         expect(() =>
-            ensureTagInlinerChild('TestTag', undefined, registry),
+            ensureTagInlinerChild('TestTag', undefined, testRegistry),
         ).toThrow(ProseError);
     });
 
@@ -333,31 +350,41 @@ describe('ensureTagInlinerChild', () => {
             ensureTagInlinerChild(
                 'TestTag',
                 [makeParagraphElement()],
-                registry,
+                testRegistry,
             ),
         ).toThrow(ProseError);
     });
 });
 
+describe('defineTag', () => {
+    it('should set tagName property on created elements', () => {
+        const textElement = textTag({
+            __JSPROSERegistry: testRegistry,
+        } as any);
+        expect(textElement.tagName).toBe('Text');
+
+        const boldElement = boldTag({
+            __JSPROSERegistry: testRegistry,
+            children: [textElement],
+        } as any);
+        expect(boldElement.tagName).toBe('Bold');
+    });
+
+    it('should set schemaName property on created elements', () => {
+        const textElement = textTag({
+            __JSPROSERegistry: testRegistry,
+        } as any);
+        expect(textElement.schemaName).toBe('text');
+
+        const boldElement = boldTag({
+            __JSPROSERegistry: testRegistry,
+            children: [textElement],
+        } as any);
+        expect(boldElement.schemaName).toBe('test-bold');
+    });
+});
+
 describe('isTagRawProseElement', () => {
-    const textTag = defineTag({
-        tagName: 'Text',
-        schema: textSchema,
-    })<{ children?: never }>(({ element }) => {
-        element.data = 'Hello';
-        element.storageKey = undefined;
-        element.children = undefined;
-    });
-
-    const boldTag = defineTag({
-        tagName: 'Bold',
-        schema: boldSchema,
-    })<{ children: {} }>(({ element, children }) => {
-        element.data = undefined;
-        element.storageKey = undefined;
-        element.children = children as any;
-    });
-
     it('should return true for matching element and tag', () => {
         const textElement = makeTextElement();
         expect(isTagRawProseElement(textElement, textTag)).toBe(true);
@@ -380,24 +407,6 @@ describe('isTagRawProseElement', () => {
 });
 
 describe('ensureTagRawProseElement', () => {
-    const textTag = defineTag({
-        tagName: 'Text',
-        schema: textSchema,
-    })<{ children?: never }>(({ element }) => {
-        element.data = 'Hello';
-        element.storageKey = undefined;
-        element.children = undefined;
-    });
-
-    const boldTag = defineTag({
-        tagName: 'Bold',
-        schema: boldSchema,
-    })<{ children: {} }>(({ element, children }) => {
-        element.data = undefined;
-        element.storageKey = undefined;
-        element.children = children as any;
-    });
-
     it('should pass for matching element and tag', () => {
         const textElement = makeTextElement();
         expect(() =>
