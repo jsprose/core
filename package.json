@@ -1,0 +1,38 @@
+{
+    "name": "@jsprose/core",
+    "version": "0.0.1",
+    "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jsprose/core.git"
+    },
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./jsx-runtime": {
+            "import": "./dist/jsx-runtime.js",
+            "types": "./dist/jsx-runtime.d.ts"
+        },
+        "./jsx-dev-runtime": {
+            "import": "./dist/jsx-dev-runtime.js",
+            "types": "./dist/jsx-dev-runtime.d.ts"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "license": "MIT",
+    "scripts": {
+        "test": "bun vitest run",
+        "build": "rm -rf dist && bun tsc --project ./tsconfig.src.json && bun run postBuild.ts"
+    },
+    "devDependencies": {
+        "prettier": "^3.6.2",
+        "typescript": "^5.9.3",
+        "vitest": "^4.0.7"
+    }
+}

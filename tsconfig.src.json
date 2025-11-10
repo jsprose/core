@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "declaration": true,
+        "verbatimModuleSyntax": true,
+        "target": "esnext",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "lib": ["ESNext"],
+        "outDir": "dist"
+    },
+    "include": ["src/**/*"]
+}

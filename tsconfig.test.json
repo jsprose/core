@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "noEmit": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "verbatimModuleSyntax": true,
+        "target": "esnext",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "lib": ["ESNext"],
+        "jsx": "react-jsx",
+        "jsxImportSource": "@jsprose/core",
+        "paths": {
+            "@jsprose/core": ["./src/index.ts"],
+            "@jsprose/core/jsx-runtime": ["./src/jsx-runtime.ts"],
+            "@jsprose/core/jsx-dev-runtime": ["./src/jsx-dev-runtime.ts"]
+        }
+    },
+    "include": ["test/**/*"]
+}
