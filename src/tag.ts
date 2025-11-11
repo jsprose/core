@@ -96,7 +96,7 @@ export function defineTag<
 
             const schema = definition.schema;
 
-            const registry = (props as any).__JSPROSERegistry as Registry;
+            const registry = (props as any).__JSPROSE_registryProp as Registry;
             if (!registry) {
                 throw new ProseError(
                     `Prose registry is not provided to <${tagName}> tag!`,

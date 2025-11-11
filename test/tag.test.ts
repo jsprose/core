@@ -359,12 +359,12 @@ describe('ensureTagInlinerChild', () => {
 describe('defineTag', () => {
     it('should set tagName property on created elements', () => {
         const textElement = textTag({
-            __JSPROSERegistry: testRegistry,
+            __JSPROSE_registryProp: testRegistry,
         } as any);
         expect(textElement.tagName).toBe('Text');
 
         const boldElement = boldTag({
-            __JSPROSERegistry: testRegistry,
+            __JSPROSE_registryProp: testRegistry,
             children: [textElement],
         } as any);
         expect(boldElement.tagName).toBe('Bold');
@@ -372,12 +372,12 @@ describe('defineTag', () => {
 
     it('should set schemaName property on created elements', () => {
         const textElement = textTag({
-            __JSPROSERegistry: testRegistry,
+            __JSPROSE_registryProp: testRegistry,
         } as any);
         expect(textElement.schemaName).toBe('text');
 
         const boldElement = boldTag({
-            __JSPROSERegistry: testRegistry,
+            __JSPROSE_registryProp: testRegistry,
             children: [textElement],
         } as any);
         expect(boldElement.schemaName).toBe('test-bold');

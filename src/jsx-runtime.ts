@@ -34,7 +34,7 @@ export function Fragment(
 }
 
 export function jsx(tag: AnyTag<AnySchema>, props: Record<string, any>) {
-    const augmentedProps = { ...props, __JSPROSERegistry: PROSE_REGISTRY };
+    const augmentedProps = { ...props, __JSPROSE_registryProp: PROSE_REGISTRY };
 
     if (tag === Fragment) {
         return Fragment(augmentedProps);
