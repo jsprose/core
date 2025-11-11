@@ -8,6 +8,8 @@ import {
     defineRegistryItem,
     type NoTagChildren,
     isolateProse,
+    isProseElement,
+    isRawProseElement,
 } from '@jsprose/core';
 
 import { P, paragraphRegistryItem, boldRegistryItem } from './__reusable';
@@ -157,7 +159,7 @@ describe('resolveRawElement', () => {
         });
     });
 
-    it('should call pre hook before resolving each element', async () => {
+    it('should call "pre" and "post" functions of hook when resolving each element', async () => {
         await isolateProse(async () => {
             PROSE_REGISTRY.setItems(paragraphRegistryItem);
 
@@ -169,41 +171,25 @@ describe('resolveRawElement', () => {
             );
 
             const preElements: any[] = [];
-            await resolveRawElement({
-                rawElement,
-                pre: (element) => {
-                    preElements.push(element);
-                },
-            });
-
-            expect(preElements.length).toBeGreaterThan(0);
-            expect(preElements.every((el) => el.__JSPROSE_rawElement)).toBe(
-                true,
-            );
-        });
-    });
-
-    it('should call post hook after resolving each element', async () => {
-        await isolateProse(async () => {
-            PROSE_REGISTRY.setItems(paragraphRegistryItem);
-
-            const rawElement = (
-                <>
-                    <P>First</P>
-                    <P>Second</P>
-                </>
-            );
-
             const postElements: any[] = [];
+
             await resolveRawElement({
                 rawElement,
-                post: (element) => {
-                    postElements.push(element);
-                },
+                hook: () => ({
+                    pre: (element) => {
+                        preElements.push(element);
+                    },
+                    post: (element) => {
+                        postElements.push(element);
+                    },
+                }),
             });
 
-            expect(postElements.length).toBeGreaterThan(0);
-            expect(postElements.every((el) => el.__JSPROSE_element)).toBe(true);
+            expect(preElements.length).toBe(5);
+            expect(preElements.every((el) => isRawProseElement(el))).toBe(true);
+
+            expect(postElements.length).toBe(5);
+            expect(postElements.every((el) => isProseElement(el))).toBe(true);
         });
     });
 

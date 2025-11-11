@@ -11,10 +11,11 @@ import { kebabCase } from './utils/case.js';
 export async function resolveRawElement(args: {
     rawElement: RawElement<AnySchema>;
     linkable?: boolean;
-    pre?: (element: RawElement<AnySchema>) => void | Promise<void>;
-    post?: (element: ProseElement<AnySchema>) => void | Promise<void>;
+    hook?: ResolveHook;
 }): Promise<ResolvedRawElement> {
-    const { rawElement, linkable, pre, post } = args;
+    const { rawElement, linkable, hook } = args;
+    const { pre, post } = hook ? await hook() : {};
+
     const ids = new Set<string>();
     const uniques: Record<string, ProseElement<AnySchema>> = {};
 
@@ -64,6 +65,13 @@ export async function resolveRawElement(args: {
         proseElement: await resolveRecursive(rawElement),
         uniques,
     };
+}
+
+export type ResolveHook = () => ResolveHookReturn | Promise<ResolveHookReturn>;
+
+export interface ResolveHookReturn {
+    pre?: (element: RawElement<AnySchema>) => void | Promise<void>;
+    post?: (element: ProseElement<AnySchema>) => void | Promise<void>;
 }
 
 export interface ResolvedRawElement {
