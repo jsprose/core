@@ -111,17 +111,6 @@ function makeParagraphElement(): RawElement<typeof paragraphSchema> {
     };
 }
 
-function makeHeadingElement(): RawElement<typeof headingSchema> {
-    return {
-        ...draftElement('raw-prose', headingSchema),
-        tagName: 'Heading',
-        data: { level: 1 },
-        storageKey: undefined,
-        children: [makeTextElement()],
-        hash: 'heading-hash',
-    };
-}
-
 describe('validateTagName', () => {
     it('should accept valid tag names', () => {
         expect(() => validateTagName('Component')).not.toThrow();
@@ -381,6 +370,15 @@ describe('defineTag', () => {
             children: [textElement],
         } as any);
         expect(boldElement.schemaName).toBe('test-bold');
+    });
+
+    it('should throw when trying to put block children inside inliner', () => {
+        expect(() =>
+            boldTag({
+                __JSPROSE_registryProp: testRegistry,
+                children: [makeParagraphElement()],
+            } as any),
+        ).toThrow(ProseError);
     });
 });
 
