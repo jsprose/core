@@ -68,6 +68,7 @@ All uniques must be used in document!
         }
 
         return {
+            __JSPROSE_document: true,
             documentId,
             uniques,
             content,
@@ -112,6 +113,7 @@ type DocumentFinalizer<TUniques extends Record<string, LinkableTag>> = (
  * Represents a complete document with metadata and content.
  */
 export interface Document<TUniques extends Record<string, LinkableTag>> {
+    __JSPROSE_document: true;
     documentId: string;
     uniques: UniqueMap<TUniques>;
     content: RawElement<AnySchema>;
@@ -149,6 +151,10 @@ Each document must have a unique ID!
 
     PROSE_SINGLETON.document.ids.add(finalId);
     return finalId;
+}
+
+export function isDocument(value: any): value is AnyDocument {
+    return value?.__JSPROSE_document === true;
 }
 
 /**
