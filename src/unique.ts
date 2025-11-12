@@ -11,6 +11,8 @@ export interface Unique<TTag extends LinkableTag> {
     rawElement: RawElement<TTag[typeof schemaKind]>;
 }
 
+export type AnyUnique = Unique<LinkableTag>;
+
 /**
  * **Caution:** Normally you don't need to define uniques manually since document definition creates them internally!
  */
