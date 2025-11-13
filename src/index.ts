@@ -1,6 +1,7 @@
 export * from './children.js';
 export * from './element.js';
 export * from './error.js';
+export * from './walk.js';
 export * from './registry.js';
 export * from './schema.js';
 export * from './tag.js';
