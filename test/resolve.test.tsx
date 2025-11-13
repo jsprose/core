@@ -12,39 +12,35 @@ import {
     isRawElement,
 } from '@jsprose/core';
 
-import { P, paragraphRegistryItem, boldRegistryItem } from './__reusable';
+import {
+    P,
+    paragraphRegistryItem,
+    boldRegistryItem,
+    paragraphSchema,
+} from './__reusable';
 
 describe('resolveRawElement', () => {
-    it('should transform RawElement to ProseElement', async () => {
-        await isolateProse(async () => {
-            PROSE_REGISTRY.setItems(paragraphRegistryItem);
-
-            const rawElement = <P>Hello world</P>;
-            const result = await resolveRawElement({ rawElement });
-
-            expect(result.proseElement.__JSPROSE_element).toBe(true);
-            expect(result.proseElement.schemaName).toBe('paragraph');
-            expect(result.uniques).toEqual({});
-        });
-    });
-
-    it('should recursively resolve children', async () => {
+    it('should transform raw element and itds children into prose elements', async () => {
         await isolateProse(async () => {
             PROSE_REGISTRY.setItems(paragraphRegistryItem, boldRegistryItem);
 
-            const rawElement = (
-                <>
-                    <P>Hello</P>
-                    <P>world</P>
-                </>
-            );
-            const { proseElement } = await resolveRawElement({ rawElement });
+            const { proseElement } = await resolveRawElement({
+                rawElement: (
+                    <>
+                        <P>Hello</P>
+                        <P>world</P>
+                    </>
+                ),
+            });
 
+            expect(isProseElement(proseElement)).toBe(true);
             expect(proseElement.children).toHaveLength(2);
-            expect(proseElement.children![0].__JSPROSE_element).toBe(true);
-            expect(proseElement.children![0].schemaName).toBe('paragraph');
-            expect(proseElement.children![1].__JSPROSE_element).toBe(true);
-            expect(proseElement.children![1].schemaName).toBe('paragraph');
+            expect(
+                isProseElement(proseElement.children![0], paragraphSchema),
+            ).toBe(true);
+            expect(
+                isProseElement(proseElement.children![1], paragraphSchema),
+            ).toBe(true);
         });
     });
 
@@ -74,31 +70,6 @@ describe('resolveRawElement', () => {
             });
 
             expect(proseElement.id).toBeUndefined();
-        });
-    });
-
-    it('should generate unique IDs for multiple linkable elements', async () => {
-        await isolateProse(async () => {
-            PROSE_REGISTRY.setItems(paragraphRegistryItem);
-
-            const rawElement = (
-                <>
-                    <P>First</P>
-                    <P>Second</P>
-                    <P>Third</P>
-                </>
-            );
-
-            const ids = new Set<string>();
-            for (const child of rawElement.children!) {
-                const { proseElement } = await resolveRawElement({
-                    rawElement: child,
-                    linkable: true,
-                });
-                expect(proseElement.id).toBeDefined();
-                expect(ids.has(proseElement.id!)).toBe(false);
-                ids.add(proseElement.id!);
-            }
         });
     });
 
@@ -146,15 +117,24 @@ describe('resolveRawElement', () => {
             const raw2 = <P>Second</P>;
             raw2.uniqueName = 'sameName';
 
-            const container = (
-                <>
-                    {raw1}
-                    {raw2}
-                </>
-            );
+            await expect(
+                resolveRawElement({
+                    linkable: true,
+                    rawElement: (
+                        <>
+                            {raw1}
+                            {raw2}
+                        </>
+                    ),
+                }),
+            ).rejects.toThrow();
 
             await expect(
-                resolveRawElement({ rawElement: container, linkable: true }),
+                resolveRawElement({
+                    linkable: true,
+                    ids: new Set<string>(['same-name']),
+                    rawElement: <>{raw1}</>,
+                }),
             ).rejects.toThrow();
         });
     });
@@ -163,18 +143,16 @@ describe('resolveRawElement', () => {
         await isolateProse(async () => {
             PROSE_REGISTRY.setItems(paragraphRegistryItem);
 
-            const rawElement = (
-                <>
-                    <P>First</P>
-                    <P>Second</P>
-                </>
-            );
-
             const preElements: any[] = [];
             const postElements: any[] = [];
 
             await resolveRawElement({
-                rawElement,
+                rawElement: (
+                    <>
+                        <P>First</P>
+                        <P>Second</P>
+                    </>
+                ),
                 hook: () => ({
                     pre: (element) => {
                         preElements.push(element);
@@ -193,7 +171,7 @@ describe('resolveRawElement', () => {
         });
     });
 
-    it('should handle non-linkable schemas correctly', async () => {
+    it('should not add ids to non-linkable schemas', async () => {
         await isolateProse(async () => {
             const nonLinkableSchema = defineSchema({
                 name: 'nonLinkable',
@@ -217,13 +195,22 @@ describe('resolveRawElement', () => {
                 }),
             );
 
-            const rawElement = <NonLinkable />;
-            const { proseElement } = await resolveRawElement({
-                rawElement,
+            const { proseElement, ids } = await resolveRawElement({
                 linkable: true,
+                rawElement: (
+                    <>
+                        <NonLinkable />
+                        <NonLinkable />
+                        <NonLinkable />
+                    </>
+                ),
             });
 
-            expect(proseElement.id).toBeUndefined();
+            expect(ids).toEqual(new Set<string>());
+            expect(proseElement.children).toHaveLength(3);
+            for (const child of proseElement.children!) {
+                expect(child.id).toBeUndefined();
+            }
         });
     });
 
@@ -240,23 +227,20 @@ describe('resolveRawElement', () => {
             const raw3 = <P>Third</P>;
             raw3.slug = 'sameSlug';
 
-            const container = (
-                <>
-                    {raw1}
-                    {raw2}
-                    {raw3}
-                </>
-            );
-
-            const { proseElement } = await resolveRawElement({
-                rawElement: container,
+            const { ids } = await resolveRawElement({
+                rawElement: (
+                    <>
+                        {raw1}
+                        {raw2}
+                        {raw3}
+                    </>
+                ),
                 linkable: true,
             });
 
-            const ids = proseElement.children!.map((c) => c.id);
-            expect(ids).toContain('same-slug');
-            expect(ids).toContain('same-slug-1');
-            expect(ids).toContain('same-slug-2');
+            expect(ids).toEqual(
+                new Set<string>(['same-slug', 'same-slug-1', 'same-slug-2']),
+            );
         });
     });
 
@@ -264,24 +248,56 @@ describe('resolveRawElement', () => {
         await isolateProse(async () => {
             PROSE_REGISTRY.setItems(paragraphRegistryItem);
 
-            const uniqueElement = <P>Unique</P>;
-            uniqueElement.uniqueName = 'myUnique';
-
             const collisionElement = <P>Collision</P>;
             collisionElement.slug = 'my-unique';
 
-            const { proseElement } = await resolveRawElement({
+            const uniqueElement = <P>Unique</P>;
+            uniqueElement.uniqueName = 'myUnique';
+
+            const { ids } = await resolveRawElement({
+                linkable: true,
                 rawElement: (
                     <>
                         {collisionElement}
                         {uniqueElement}
                     </>
                 ),
-                linkable: true,
             });
 
-            expect(proseElement.children![0].id).toBe('my-unique-1');
-            expect(proseElement.children![1].id).toBe('my-unique');
+            expect(ids).toEqual(new Set<string>(['my-unique', 'my-unique-1']));
+        });
+    });
+
+    it('should accept external IDs to avoid collisions with', async () => {
+        await isolateProse(async () => {
+            PROSE_REGISTRY.setItems(paragraphRegistryItem);
+            const externalIds = new Set<string>(['external-id', 'my-unique']);
+
+            const raw1 = <P>External</P>;
+            raw1.slug = 'external-id';
+
+            const raw2 = <P>Unique</P>;
+            raw2.uniqueName = 'myUnique2';
+
+            const { ids } = await resolveRawElement({
+                linkable: true,
+                ids: externalIds,
+                rawElement: (
+                    <>
+                        {raw1}
+                        {raw2}
+                    </>
+                ),
+            });
+
+            expect(ids).toEqual(
+                new Set<string>([
+                    'external-id',
+                    'my-unique',
+                    'external-id-1',
+                    'my-unique2',
+                ]),
+            );
         });
     });
 });

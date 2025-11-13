@@ -12,18 +12,19 @@ export async function resolveRawElement(args: {
     rawElement: RawElement<AnySchema>;
     linkable?: boolean;
     hook?: ResolveHook;
-    uniqueIds?: Set<string>;
+    ids?: Set<string>;
 }): Promise<ResolvedRawElement> {
-    const { rawElement, linkable, hook, uniqueIds: externalUniqueIds } = args;
+    const { rawElement, linkable, hook, ids: externalIds } = args;
     const { pre, post } = hook ? await hook() : {};
 
-    const uniqueIds = new Set<string>(externalUniqueIds);
+    const ids = new Set<string>(externalIds);
+    const uniqueIds = new Set<string>();
     if (linkable) {
-        // We need to pre-scan all children uniques to avoid auto-generated IDs to unique IDs collisions
+        // We need to pre-scan all children uniques to avoid collisions between auto-generated IDs and unique IDs
         await walkElements(rawElement, async (rawElement) => {
             if (rawElement.uniqueName) {
                 const id = uniqueName2Id(rawElement.uniqueName);
-                if (uniqueIds.has(id)) {
+                if (ids.has(id)) {
                     throwDuplicateUniqueId(rawElement.uniqueName, id);
                 }
                 uniqueIds.add(id);
@@ -31,7 +32,6 @@ export async function resolveRawElement(args: {
         });
     }
 
-    const ids = new Set<string>();
     const uniques: Record<string, ProseElement<AnySchema>> = {};
 
     async function resolveRecursive(
@@ -79,6 +79,7 @@ export async function resolveRawElement(args: {
     return {
         proseElement: await resolveRecursive(rawElement),
         uniques,
+        ids,
     };
 }
 
@@ -92,4 +93,5 @@ export interface ResolveHookReturn {
 export interface ResolvedRawElement {
     proseElement: ProseElement<AnySchema>;
     uniques: Record<string, ProseElement<AnySchema>>;
+    ids: Set<string>;
 }
