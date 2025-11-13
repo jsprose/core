@@ -1,5 +1,5 @@
 import { normalizeChildren, type NormalizedChildren } from './children.js';
-import { draftElement, isRawProseElement, type RawElement } from './element.js';
+import { draftElement, isRawElement, type RawElement } from './element.js';
 import { ProseError } from './error.js';
 import { hash } from './utils/hash.js';
 import type { Registry } from './registry.js';
@@ -290,7 +290,7 @@ export function ensureTagChild<TSchemas extends AnySchema | AnySchema[]>(
     for (const child of children) {
         let matched = false;
         for (const schema of schemaArray) {
-            if (isRawProseElement(child, schema)) {
+            if (isRawElement(child, schema)) {
                 matched = true;
                 break;
             }
@@ -329,7 +329,7 @@ export function ensureTagChildren<TSchemas extends AnySchema | AnySchema[]>(
     for (const child of children) {
         let matched = false;
         for (const schema of schemaArray) {
-            if (isRawProseElement(child, schema)) {
+            if (isRawElement(child, schema)) {
                 matched = true;
                 break;
             }
@@ -432,7 +432,7 @@ export function isTagRawProseElement<
     TSchema extends AnySchema,
     TTag extends AnyTag<TSchema>,
 >(element: any, tag: TTag): element is RawElement<TSchema, TTag['tagName']> {
-    if (!isRawProseElement(element)) {
+    if (!isRawElement(element)) {
         return false;
     }
 

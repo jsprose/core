@@ -1,4 +1,4 @@
-import { draftElement, isRawProseElement, type RawElement } from './element.js';
+import { draftElement, isRawElement, type RawElement } from './element.js';
 import { hash } from './utils/hash.js';
 import { schemaKind, type AnySchema } from './schema.js';
 import { textSchema } from './default/text.js';
@@ -46,7 +46,7 @@ export function normalizeChildren(
         // Raw Prose ELement
         //
 
-        if (isRawProseElement(child)) {
+        if (isRawElement(child)) {
             const clonedRawProseElement = deepCloneRawElement(child);
             step?.(clonedRawProseElement);
             normalizedChildren.push(clonedRawProseElement);
@@ -89,7 +89,7 @@ export function normalizeChildren(
 
         const lastNormalized = normalizedChildren.at(-1);
 
-        if (isRawProseElement(lastNormalized, textSchema)) {
+        if (isRawElement(lastNormalized, textSchema)) {
             lastNormalized.data += strChild;
             lastNormalized.hash = hash(lastNormalized.data, 12);
         } else {
@@ -113,7 +113,7 @@ function deepCloneRawElement(
     if (Array.isArray(element.children) && Array.isArray(cloned.children)) {
         for (let i = 0; i < cloned.children.length; i++) {
             const originalChild = element.children[i] as RawElement<AnySchema>;
-            if (isRawProseElement(originalChild)) {
+            if (isRawElement(originalChild)) {
                 cloned.children[i] = deepCloneRawElement(originalChild);
             }
         }

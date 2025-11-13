@@ -9,7 +9,7 @@ import {
     type NoTagChildren,
     isolateProse,
     isProseElement,
-    isRawProseElement,
+    isRawElement,
 } from '@jsprose/core';
 
 import { P, paragraphRegistryItem, boldRegistryItem } from './__reusable';
@@ -186,7 +186,7 @@ describe('resolveRawElement', () => {
             });
 
             expect(preElements.length).toBe(5);
-            expect(preElements.every((el) => isRawProseElement(el))).toBe(true);
+            expect(preElements.every((el) => isRawElement(el))).toBe(true);
 
             expect(postElements.length).toBe(5);
             expect(postElements.every((el) => isProseElement(el))).toBe(true);

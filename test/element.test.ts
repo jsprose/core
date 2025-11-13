@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 
 import {
     defineSchema,
-    isRawProseElement,
-    ensureRawProseElement,
+    isRawElement,
+    ensureRawElement,
     isProseElement,
     ensureProseElement,
     draftElement,
@@ -50,47 +50,45 @@ const proseTextElement: ProseElement<typeof textSchema> = {
     children: undefined,
 };
 
-describe('isRawProseElement', () => {
-    it('returns true for matching RawProseElement', () => {
-        expect(isRawProseElement(rawTextElement, textSchema)).toBe(true);
+describe('isRawElement', () => {
+    it('returns true for matching RawElement', () => {
+        expect(isRawElement(rawTextElement, textSchema)).toBe(true);
     });
 
     it('returns true without schema argument', () => {
-        expect(isRawProseElement(rawTextElement)).toBe(true);
+        expect(isRawElement(rawTextElement)).toBe(true);
     });
 
     it('returns false for mismatching schema', () => {
-        expect(isRawProseElement(rawTextElement, paragraphSchema)).toBe(false);
+        expect(isRawElement(rawTextElement, paragraphSchema)).toBe(false);
     });
 
     it('returns false for non-elements', () => {
-        expect(isRawProseElement(null as any, textSchema)).toBe(false);
-        expect(isRawProseElement({} as any, textSchema)).toBe(false);
-        expect(isRawProseElement(42 as any, textSchema)).toBe(false);
-        expect(isRawProseElement(undefined as any, textSchema)).toBe(false);
+        expect(isRawElement(null as any, textSchema)).toBe(false);
+        expect(isRawElement({} as any, textSchema)).toBe(false);
+        expect(isRawElement(42 as any, textSchema)).toBe(false);
+        expect(isRawElement(undefined as any, textSchema)).toBe(false);
     });
 });
 
-describe('ensureRawProseElement', () => {
-    it('passes for matching RawProseElement', () => {
+describe('ensureRawElement', () => {
+    it('passes for matching RawElement', () => {
         expect(() =>
-            ensureRawProseElement(rawTextElement, textSchema),
+            ensureRawElement(rawTextElement, textSchema),
         ).not.toThrow();
     });
 
     it('throws for mismatching schema', () => {
         expect(() =>
-            ensureRawProseElement(rawTextElement, paragraphSchema),
+            ensureRawElement(rawTextElement, paragraphSchema),
         ).toThrow();
     });
 
     it('throws for non-elements', () => {
-        expect(() => ensureRawProseElement({} as any, textSchema)).toThrow();
-        expect(() => ensureRawProseElement(null as any, textSchema)).toThrow();
-        expect(() => ensureRawProseElement(5 as any, textSchema)).toThrow();
-        expect(() =>
-            ensureRawProseElement(undefined as any, textSchema),
-        ).toThrow();
+        expect(() => ensureRawElement({} as any, textSchema)).toThrow();
+        expect(() => ensureRawElement(null as any, textSchema)).toThrow();
+        expect(() => ensureRawElement(5 as any, textSchema)).toThrow();
+        expect(() => ensureRawElement(undefined as any, textSchema)).toThrow();
     });
 });
 

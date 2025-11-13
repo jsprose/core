@@ -4,7 +4,6 @@ import {
     defineSchema,
     type RawElement,
     normalizeChildren,
-    isRawProseElement,
     textSchema,
     hash,
     type AnySchema,
@@ -12,6 +11,7 @@ import {
     defineUnique,
     type Unique,
     defineTag,
+    isRawElement,
 } from '@jsprose/core';
 
 const boldSchema = defineSchema({
@@ -45,7 +45,7 @@ describe('normalizeChildren', () => {
         expect(out).toBeDefined();
         expect(out!.length).toBe(1);
         const el = out![0];
-        expect(isRawProseElement(el, textSchema)).toBe(true);
+        expect(isRawElement(el, textSchema)).toBe(true);
         expect(el.data).toBe('Hello');
     });
 
@@ -74,9 +74,9 @@ describe('normalizeChildren', () => {
         // 3 raw children -> 3 step invocations
         expect(seen.length).toBe(3);
         // First two are text schema elements (before merge result kept only first in final array)
-        expect(isRawProseElement(seen[0], textSchema)).toBe(true);
-        expect(isRawProseElement(seen[1], textSchema)).toBe(true);
-        expect(isRawProseElement(seen[2], boldSchema)).toBe(true);
+        expect(isRawElement(seen[0], textSchema)).toBe(true);
+        expect(isRawElement(seen[1], textSchema)).toBe(true);
+        expect(isRawElement(seen[2], boldSchema)).toBe(true);
     });
 
     it('clones non-string children (mutating original after call does not affect result)', () => {
@@ -170,7 +170,7 @@ describe('normalizeChildren', () => {
         normalizeChildren([unique], (c) => seen.push(c));
 
         expect(seen.length).toBe(1);
-        expect(isRawProseElement(seen[0], boldSchema)).toBe(true);
+        expect(isRawElement(seen[0], boldSchema)).toBe(true);
         expect(seen[0].uniqueName).toBeUndefined();
     });
 

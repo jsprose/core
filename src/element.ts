@@ -190,7 +190,7 @@ export function draftElement<
 /**
  * Type guard to check if given element is a RawProseElement of given schema (if provided).
  */
-export function isRawProseElement<TSchema extends AnySchema>(
+export function isRawElement<TSchema extends AnySchema>(
     element: any,
     schema?: TSchema,
 ): element is RawElement<TSchema> {
@@ -200,11 +200,11 @@ export function isRawProseElement<TSchema extends AnySchema>(
 /**
  * Proceed further only if given element is a RawProseElement and matches the given schema (if provided).
  */
-export function ensureRawProseElement<TSchema extends AnySchema>(
+export function ensureRawElement<TSchema extends AnySchema>(
     element: any,
     schema?: TSchema,
 ): asserts element is RawElement<TSchema> {
-    if (!isRawProseElement(element, schema)) {
+    if (!isRawElement(element, schema)) {
         throw new ProseError(formatElementError('RawElement', element, schema));
     }
 }
