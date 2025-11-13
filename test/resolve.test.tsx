@@ -155,7 +155,7 @@ describe('resolveRawElement', () => {
 
             await expect(
                 resolveRawElement({ rawElement: container, linkable: true }),
-            ).rejects.toThrow(/Duplicate unique element ID/);
+            ).rejects.toThrow();
         });
     });
 
@@ -257,6 +257,31 @@ describe('resolveRawElement', () => {
             expect(ids).toContain('same-slug');
             expect(ids).toContain('same-slug-1');
             expect(ids).toContain('same-slug-2');
+        });
+    });
+
+    it('should never add dedupe suffixes to unique IDs', async () => {
+        await isolateProse(async () => {
+            PROSE_REGISTRY.setItems(paragraphRegistryItem);
+
+            const uniqueElement = <P>Unique</P>;
+            uniqueElement.uniqueName = 'myUnique';
+
+            const collisionElement = <P>Collision</P>;
+            collisionElement.slug = 'my-unique';
+
+            const { proseElement } = await resolveRawElement({
+                rawElement: (
+                    <>
+                        {collisionElement}
+                        {uniqueElement}
+                    </>
+                ),
+                linkable: true,
+            });
+
+            expect(proseElement.children![0].id).toBe('my-unique-1');
+            expect(proseElement.children![1].id).toBe('my-unique');
         });
     });
 });

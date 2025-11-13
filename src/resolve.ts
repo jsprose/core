@@ -1,8 +1,8 @@
 import { draftElement, type ProseElement, type RawElement } from './element.js';
-import { ProseError } from './error.js';
+import { createId, throwDuplicateUniqueId, uniqueName2Id } from './id.js';
 import { type AnySchema } from './schema.js';
 import { PROSE_REGISTRY } from './singleton.js';
-import { kebabCase } from './utils/case.js';
+import { walkElements } from './walk.js';
 
 /**
  * Transforms given RawElement into ProseElement.
@@ -12,9 +12,24 @@ export async function resolveRawElement(args: {
     rawElement: RawElement<AnySchema>;
     linkable?: boolean;
     hook?: ResolveHook;
+    uniqueIds?: Set<string>;
 }): Promise<ResolvedRawElement> {
-    const { rawElement, linkable, hook } = args;
+    const { rawElement, linkable, hook, uniqueIds: externalUniqueIds } = args;
     const { pre, post } = hook ? await hook() : {};
+
+    const uniqueIds = new Set<string>(externalUniqueIds);
+    if (linkable) {
+        // We need to pre-scan all children uniques to avoid auto-generated IDs to unique IDs collisions
+        await walkElements(rawElement, async (rawElement) => {
+            if (rawElement.uniqueName) {
+                const id = uniqueName2Id(rawElement.uniqueName);
+                if (uniqueIds.has(id)) {
+                    throwDuplicateUniqueId(rawElement.uniqueName, id);
+                }
+                uniqueIds.add(id);
+            }
+        });
+    }
 
     const ids = new Set<string>();
     const uniques: Record<string, ProseElement<AnySchema>> = {};
@@ -46,7 +61,7 @@ export async function resolveRawElement(args: {
         };
 
         if (linkable && schema.linkable) {
-            proseElement.id = createId(ids, rawElement);
+            proseElement.id = createId(ids, uniqueIds, rawElement);
         }
 
         if (rawElement.uniqueName) {
@@ -77,36 +92,4 @@ export interface ResolveHookReturn {
 export interface ResolvedRawElement {
     proseElement: ProseElement<AnySchema>;
     uniques: Record<string, ProseElement<AnySchema>>;
-}
-
-function createId(ids: Set<string>, rawElement: RawElement<AnySchema>): string {
-    if (rawElement.uniqueName) {
-        const id = kebabCase(rawElement.uniqueName);
-
-        if (ids.has(id)) {
-            throw new ProseError(
-                `
-Duplicate unique element ID detected: ${id}!
-This should not be possible, unless you somehow allowed two elements with same "uniqueName: ${rawElement.uniqueName}" to exist in same document.
-                `.trim(),
-            );
-        }
-
-        ids.add(id);
-        return id;
-    }
-
-    const baseId = rawElement.slug
-        ? kebabCase(rawElement.slug)
-        : rawElement.schemaName + '-' + rawElement.hash;
-    let id = baseId;
-    let dedupeCounter = 0;
-
-    while (ids.has(id)) {
-        dedupeCounter += 1;
-        id = `${baseId}-${dedupeCounter}`;
-    }
-
-    ids.add(id);
-    return id;
 }
