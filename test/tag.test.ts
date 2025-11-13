@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
 import {
-    validateTagName,
     ensureTagNoChildren,
     ensureTagChild,
     ensureTagChildren,
@@ -110,22 +109,6 @@ function makeParagraphElement(): RawElement<typeof paragraphSchema> {
         hash: 'para-hash',
     };
 }
-
-describe('validateTagName', () => {
-    it('should accept valid tag names', () => {
-        expect(() => validateTagName('Component')).not.toThrow();
-        expect(() => validateTagName('MyComponent')).not.toThrow();
-        expect(() => validateTagName('_private')).not.toThrow();
-        expect(() => validateTagName('$element')).not.toThrow();
-    });
-
-    it('should reject invalid tag names', () => {
-        expect(() => validateTagName('div')).toThrow(ProseError);
-        expect(() => validateTagName('1Component')).toThrow(ProseError);
-        expect(() => validateTagName('')).toThrow(ProseError);
-        expect(() => validateTagName('my-component')).toThrow(ProseError);
-    });
-});
 
 describe('ensureTagNoChildren', () => {
     it('should pass when children is undefined', () => {
@@ -370,6 +353,15 @@ describe('defineTag', () => {
             children: [textElement],
         } as any);
         expect(boldElement.schemaName).toBe('test-bold');
+    });
+
+    it('should throw when using invalid tag name', () => {
+        expect(() =>
+            defineTag({
+                tagName: 'invalid-tag-name',
+                schema: textSchema,
+            }),
+        ).toThrow(ProseError);
     });
 
     it('should throw when trying to put block children inside inliner', () => {

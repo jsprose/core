@@ -1,7 +1,6 @@
 import { normalizeChildren, type NormalizedChildren } from './children.js';
 import { draftElement, isRawElement, type RawElement } from './element.js';
 import { ProseError } from './error.js';
-import { hash } from './utils/hash.js';
 import type { Registry } from './registry.js';
 import {
     schemaKind,
@@ -10,6 +9,8 @@ import {
     type InlinerSchema,
 } from './schema.js';
 import type { Unique } from './unique.js';
+import { validTagName } from './utils/name.js';
+import { hash } from './utils/hash.js';
 
 /**
  * Prose tag used in JSX/TSX syntax to write content.
@@ -75,6 +76,12 @@ export function defineTag<
     const TSchema extends AnySchema,
     const TTagDefinition extends TagDefinition<TSchema>,
 >(definition: TTagDefinition) {
+    if (!validTagName(definition.tagName)) {
+        throw new ProseError(
+            `Invalid tag name format "${definition.tagName}"!`,
+        );
+    }
+
     function finalizeTag<
         const TConfigurableTagProps extends ConfigurableTagProps,
     >(
@@ -92,8 +99,6 @@ export function defineTag<
             >,
         ) => {
             const tagName = definition.tagName;
-            validateTagName(tagName);
-
             const schema = definition.schema;
 
             const registry = (props as any).__JSPROSE_registryProp as Registry;
@@ -237,17 +242,6 @@ export type ProcessTagFunction<
     element: TElement;
     registry: Registry;
 }) => void;
-
-/**
- * Check that given tag name meets JSX function tag names requirements:
- * * start with uppercase letter
- * * contain only letters, digits, `$` and `_`
- */
-export function validateTagName(tagName: string) {
-    if (!/^[A-Z_$][a-zA-Z0-9_$]*$/.test(tagName)) {
-        throw new ProseError(`Invalid tag name: <${tagName}>!`);
-    }
-}
 
 /**
  * Proceed and narrow down children type only if tag has no children after normalization.

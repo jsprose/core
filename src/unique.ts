@@ -2,6 +2,7 @@ import { type RawElement } from './element.js';
 import { ProseError } from './error.js';
 import type { AnySchema, schemaKind } from './schema.js';
 import type { LinkableTag } from './tag.js';
+import { validVarName } from './utils/name.js';
 
 export interface Unique<TTag extends LinkableTag> {
     __JSPROSE_unique: true;
@@ -21,6 +22,10 @@ export function defineUnique<TTag extends LinkableTag>(unique: {
     name: string;
     tag: TTag;
 }): Unique<TTag> {
+    if (!validVarName(unique.name)) {
+        throw new ProseError(`Invalid unique name format "${unique.name}"!`);
+    }
+
     let _rawElement: RawElement<TTag[typeof schemaKind]> | undefined;
 
     return {

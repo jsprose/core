@@ -55,6 +55,16 @@ describe('defineUnique', () => {
             )).toThrow();
         });
     });
+
+    it('should throw when using invalid unique name', () => {
+        expect(() => {
+            defineUnique({
+                documentId: 'foo',
+                name: 'invalid-unique-name',
+                tag: P,
+            });
+        }).toThrow();
+    });
 });
 
 describe('isUnique', () => {
