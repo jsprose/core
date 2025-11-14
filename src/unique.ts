@@ -1,7 +1,7 @@
 import { type RawElement } from './element.js';
 import { ProseError } from './error.js';
 import type { AnySchema, schemaKind } from './schema.js';
-import type { LinkableTag } from './tag.js';
+import type { LinkableTag, Tag } from './tag.js';
 import { validVarName } from './utils/name.js';
 
 export interface Unique<TTag extends LinkableTag> {
@@ -12,7 +12,9 @@ export interface Unique<TTag extends LinkableTag> {
     rawElement: RawElement<TTag[typeof schemaKind]>;
 }
 
-export type AnyUnique = Unique<LinkableTag>;
+export interface AnyUnique extends Unique<LinkableTag> {
+    tag: LinkableTag;
+}
 
 /**
  * **Caution:** Normally you don't need to define uniques manually since document definition creates them internally!

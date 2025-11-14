@@ -3,7 +3,7 @@ import { ProseError } from './error.js';
 import type { AnySchema } from './schema.js';
 import { PROSE_SINGLETON } from './singleton.js';
 import type { LinkableTag } from './tag.js';
-import { defineUnique, type Unique } from './unique.js';
+import { defineUnique, type AnyUnique, type Unique } from './unique.js';
 
 /**
  * Defines a scoped portion of prose content with an explicit document ID.
@@ -129,7 +129,9 @@ export interface DocumentDefinition {
     uniques?: Record<string, LinkableTag>;
 }
 
-export type AnyDocument = Document<Record<string, LinkableTag>>;
+export interface AnyDocument extends Document<Record<string, LinkableTag>> {
+    uniques: Record<string, AnyUnique>;
+}
 
 function tryAddDocumentId(documentId?: string): string {
     let finalId: string;

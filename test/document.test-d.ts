@@ -1,4 +1,4 @@
-import { describe, expectTypeOf, it } from 'vitest';
+import { describe, expectTypeOf, it, test } from 'vitest';
 
 import {
     defineDocument,
@@ -8,6 +8,7 @@ import {
     type Unique,
     type RawElement,
     type AnySchema,
+    type AnyDocument,
 } from '@jsprose/core';
 
 import { P, paragraphSchema, Bold } from './__reusable';
@@ -200,4 +201,14 @@ describe('defineDocument', () => {
             readonly b: Unique<typeof Bold>;
         }>();
     });
+});
+
+test('AnyDocument should be compatible with specific Document types', () => {
+    const exactDocument = defineDocument({
+        uniques: {
+            exactUnique: P,
+        },
+    })(() => mockElement);
+
+    const anyDocument: AnyDocument = exactDocument;
 });

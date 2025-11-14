@@ -26,7 +26,7 @@ export type InlinerSchema = Schema & {
  * Schema type brand to distinguish different schema wrappers: elements, tags, etc.
  * Used on both type level and runtime.
  */
-export const schemaKind = Symbol('__JSPROSESchemaKind');
+export const schemaKind = Symbol('__JSPROSE_schemaKind');
 
 /**
  * Real properties of the schema.
