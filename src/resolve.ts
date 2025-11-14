@@ -11,11 +11,12 @@ import { walkElements } from './walk.js';
 export async function resolveRawElement(args: {
     rawElement: RawElement<AnySchema>;
     linkable?: boolean;
-    hook?: ResolveHook;
     ids?: Set<string>;
+    pre?: (rawElement: RawElement<AnySchema>) => Promise<void> | void;
+    post?: (proseElement: ProseElement<AnySchema>) => Promise<void> | void;
+    step?: ResolveStep;
 }): Promise<ResolvedRawElement> {
-    const { rawElement, linkable, hook, ids: externalIds } = args;
-    const { pre, post } = hook ? await hook() : {};
+    const { rawElement, linkable, pre, post, step, ids: externalIds } = args;
 
     const ids = new Set<string>(externalIds);
     const uniqueIds = new Set<string>();
@@ -37,10 +38,6 @@ export async function resolveRawElement(args: {
     async function resolveRecursive(
         rawElement: RawElement<AnySchema>,
     ): Promise<ProseElement<AnySchema>> {
-        if (pre) {
-            await pre(rawElement);
-        }
-
         let resolvedChildren: ProseElement<AnySchema>[] | undefined = undefined;
 
         if (rawElement.children) {
@@ -49,6 +46,10 @@ export async function resolveRawElement(args: {
                 const resolvedChild = await resolveRecursive(child);
                 resolvedChildren.push(resolvedChild);
             }
+        }
+
+        if (pre) {
+            await pre(rawElement);
         }
 
         const schema = PROSE_REGISTRY.getSchema(rawElement.schemaName);
@@ -73,6 +74,10 @@ export async function resolveRawElement(args: {
             await post(proseElement);
         }
 
+        if (step) {
+            await step({ rawElement, proseElement });
+        }
+
         return proseElement;
     }
 
@@ -83,12 +88,10 @@ export async function resolveRawElement(args: {
     };
 }
 
-export type ResolveHook = () => ResolveHookReturn | Promise<ResolveHookReturn>;
-
-export interface ResolveHookReturn {
-    pre?: (element: RawElement<AnySchema>) => void | Promise<void>;
-    post?: (element: ProseElement<AnySchema>) => void | Promise<void>;
-}
+export type ResolveStep<TReturn = void> = (args: {
+    rawElement: RawElement<AnySchema>;
+    proseElement: ProseElement<AnySchema>;
+}) => TReturn | Promise<TReturn>;
 
 export interface ResolvedRawElement {
     proseElement: ProseElement<AnySchema>;

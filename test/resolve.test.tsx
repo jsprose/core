@@ -139,12 +139,13 @@ describe('resolveRawElement', () => {
         });
     });
 
-    it('should call "pre" and "post" functions of hook when resolving each element', async () => {
+    it('should call pre, post and step functions when resolving each element', async () => {
         await isolateProse(async () => {
             PROSE_REGISTRY.setItems(paragraphRegistryItem);
 
             const preElements: any[] = [];
             const postElements: any[] = [];
+            let stepCount = 0;
 
             await resolveRawElement({
                 rawElement: (
@@ -153,14 +154,15 @@ describe('resolveRawElement', () => {
                         <P>Second</P>
                     </>
                 ),
-                hook: () => ({
-                    pre: (element) => {
-                        preElements.push(element);
-                    },
-                    post: (element) => {
-                        postElements.push(element);
-                    },
-                }),
+                pre: (rawElement) => {
+                    preElements.push(rawElement);
+                },
+                post: (proseElement) => {
+                    postElements.push(proseElement);
+                },
+                step: ({ rawElement, proseElement }) => {
+                    stepCount++;
+                },
             });
 
             expect(preElements.length).toBe(5);
@@ -168,6 +170,8 @@ describe('resolveRawElement', () => {
 
             expect(postElements.length).toBe(5);
             expect(postElements.every((el) => isProseElement(el))).toBe(true);
+
+            expect(stepCount).toBe(5);
         });
     });
 
@@ -268,7 +272,7 @@ describe('resolveRawElement', () => {
         });
     });
 
-    it('should accept external IDs to avoid collisions with', async () => {
+    it('should accept external IDs to avoid collisions', async () => {
         await isolateProse(async () => {
             PROSE_REGISTRY.setItems(paragraphRegistryItem);
             const externalIds = new Set<string>(['external-id', 'my-unique']);
