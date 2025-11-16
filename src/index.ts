@@ -17,3 +17,4 @@ export * from './default/mix.js';
 export * from './default/inliners.js';
 export * from './utils/isAny.js';
 export * from './utils/hash.js';
+export * from './utils/name.js';
