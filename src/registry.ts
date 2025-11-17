@@ -5,6 +5,7 @@ import { textSchema } from './default/text.js';
 import { inlinersSchema } from './default/inliners.js';
 import { mixSchema } from './default/mix.js';
 import type { ProseElement } from './element.js';
+import type { IsAny } from './utils/isAny.js';
 
 /**
  * Registry that contains all defined prose schemas and tags.
@@ -183,12 +184,12 @@ export type RegistryItem<
 
 export type CreateStorage<TSchema extends AnySchema> = {
     (
-        proseElement: ProseElement<TSchema>,
+        proseElement: IsAny<TSchema> extends true ? any : ProseElement<TSchema>,
     ): Promise<TSchema['Storage']> | TSchema['Storage'];
 };
 
 export type AnyRegistryItem = RegistryItem<
     AnySchema,
     Record<string, AnyTag<AnySchema>>,
-    CreateStorage<AnySchema> | undefined
+    CreateStorage<any> | undefined // Any here because TypeScript is a bitch and cant widen function argument types
 >;
