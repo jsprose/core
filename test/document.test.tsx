@@ -12,14 +12,14 @@ import { P, paragraphRegistryItem } from './__reusable';
 describe('defineDocument', () => {
     it('should generate auto ID when no ID is provided', () => {
         isolateProse(() => {
-            const document = defineDocument({})(() => <>Foo</>);
+            const document = defineDocument()(() => <>Foo</>);
             expect(document.documentId).toEqual('__JSPROSE_DOCUMENT_ID_1__');
         });
     });
 
     it('should return raw element from content function', () => {
         isolateProse(() => {
-            const document = defineDocument({})(() => <>Foo</>);
+            const document = defineDocument()(() => <>Foo</>);
             expect(document.content).toEqual(<>Foo</>);
         });
     });
@@ -52,6 +52,14 @@ describe('defineDocument', () => {
                 })(() => <>Foo</>);
             });
         }).toThrow();
+    });
+
+    it('should not throw when document has ID but not have definition', () => {
+        isolateProse(() => {
+            expect(() => {
+                defineDocument('my-doc-id')(() => <>Text content</>);
+            }).not.toThrow();
+        });
     });
 });
 

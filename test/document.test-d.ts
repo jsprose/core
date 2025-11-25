@@ -149,9 +149,9 @@ describe('defineDocument', () => {
             schema: nonLinkableSchema,
         })<{}>(({ element }) => {});
 
+        // @ts-expect-error - should not allow non-linkable tags
         defineDocument({
             uniques: {
-                // @ts-expect-error - should not allow non-linkable tags
                 invalid: NonLinkableTag,
             },
         })(({ uniques }) => mockElement);
