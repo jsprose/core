@@ -59,8 +59,8 @@ describe('insertDocumentId', () => {
     it('should insert ID as first argument when defineDocument has no explicit ID', () => {
         const input = 'const doc = defineDocument({ uniques: {} });';
         const result = insertDocumentId({
-            insertIn: input,
-            insertId: 'my-custom-id',
+            code: input,
+            documentId: 'my-custom-id',
         });
         expect(result).toBe(
             "const doc = defineDocument('my-custom-id', { uniques: {} });",
@@ -71,8 +71,8 @@ describe('insertDocumentId', () => {
         const input =
             "const doc = defineDocument('existing-id', { uniques: {} });";
         const result = insertDocumentId({
-            insertIn: input,
-            insertId: 'my-custom-id',
+            code: input,
+            documentId: 'my-custom-id',
         });
         expect(result).toBe(
             "const doc = defineDocument('existing-id', { uniques: {} });",
@@ -83,8 +83,8 @@ describe('insertDocumentId', () => {
         const input =
             'const doc = defineDocument("existing-id", { uniques: {} });';
         const result = insertDocumentId({
-            insertIn: input,
-            insertId: 'my-custom-id',
+            code: input,
+            documentId: 'my-custom-id',
         });
         expect(result).toBe(
             'const doc = defineDocument("existing-id", { uniques: {} });',
@@ -96,8 +96,8 @@ describe('insertDocumentId', () => {
     { uniques: {} }
 );`;
         const result = insertDocumentId({
-            insertIn: input,
-            insertId: 'docs/example.tsx',
+            code: input,
+            documentId: 'docs/example.tsx',
         });
         expect(result).toBe(`const doc = defineDocument(
     'docs/example.tsx', { uniques: {} }
@@ -111,8 +111,8 @@ describe('insertDocumentId', () => {
             const doc3 = defineDocument({ uniques: {} });
         `;
         const result = insertDocumentId({
-            insertIn: input,
-            insertId: 'shared-id',
+            code: input,
+            documentId: 'shared-id',
         });
         expect(result).toContain(
             "const doc1 = defineDocument('shared-id', { uniques: {} });",
@@ -128,8 +128,8 @@ describe('insertDocumentId', () => {
     it('should work with custom function name alias', () => {
         const input = 'const doc = createDoc({ uniques: {} });';
         const result = insertDocumentId({
-            insertIn: input,
-            insertId: 'my-id',
+            code: input,
+            documentId: 'my-id',
             aliasName: 'createDoc',
         });
         expect(result).toBe("const doc = createDoc('my-id', { uniques: {} });");
@@ -138,8 +138,8 @@ describe('insertDocumentId', () => {
     it('should handle variable as first argument', () => {
         const input = 'const doc = defineDocument(myId, { uniques: {} });';
         const result = insertDocumentId({
-            insertIn: input,
-            insertId: 'my-id',
+            code: input,
+            documentId: 'my-id',
         });
         expect(result).toBe(
             'const doc = defineDocument(myId, { uniques: {} });',
@@ -149,8 +149,8 @@ describe('insertDocumentId', () => {
     it('should handle template literal as first argument', () => {
         const input = 'const doc = defineDocument(`${id}`, { uniques: {} });';
         const result = insertDocumentId({
-            insertIn: input,
-            insertId: 'my-id',
+            code: input,
+            documentId: 'my-id',
         });
         expect(result).toBe(
             'const doc = defineDocument(`${id}`, { uniques: {} });',
@@ -161,8 +161,8 @@ describe('insertDocumentId', () => {
         const input =
             'const doc = defineDocument({ uniques: {}, nested: { a: 1, b: 2 } });';
         const result = insertDocumentId({
-            insertIn: input,
-            insertId: 'my-id',
+            code: input,
+            documentId: 'my-id',
         });
         expect(result).toBe(
             "const doc = defineDocument('my-id', { uniques: {}, nested: { a: 1, b: 2 } });",

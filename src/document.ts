@@ -173,9 +173,8 @@ export function isDocument(value: any): value is AnyDocument {
  * For example, in "single document per file" path to file can be used as document ID.
  */
 export function insertDocumentId(options: InsertDocumentIdOptions): string {
-    const { insertId: documentId, aliasName: functionName = 'defineDocument' } =
-        options;
-    let { insertIn: searchIn } = options;
+    const { documentId, aliasName: functionName = 'defineDocument' } = options;
+    let { code: searchIn } = options;
 
     // Escape special regex characters in function name
     const escapedFunctionName = functionName.replace(
@@ -235,11 +234,11 @@ interface InsertDocumentIdOptions {
     /**
      * The source code to search in.
      */
-    insertIn: string;
+    code: string;
     /**
      * The document ID to insert.
      */
-    insertId: string;
+    documentId: string;
     /**
      * The function name to search for. Defaults to 'defineDocument'.
      * Useful when defineDocument is imported with an alias.
