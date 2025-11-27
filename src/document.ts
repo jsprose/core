@@ -147,25 +147,11 @@ export interface AnyDocument extends Document<Record<string, LinkableTag>> {
 }
 
 function tryAddDocumentId(documentId?: string): string {
-    let finalId: string;
-
     if (documentId === undefined) {
-        finalId = `__JSPROSE_DOCUMENT_ID_${PROSE_SINGLETON.document.autoIdCounter++}__`;
-    } else {
-        if (PROSE_SINGLETON.document.ids.has(documentId)) {
-            throw new ProseError(
-                `
-Duplicate document ID detected: "${documentId}"!
-Each document must have a unique ID!
-            `.trim(),
-            );
-        }
-
-        finalId = documentId;
+        return `__JSPROSE_DOCUMENT_ID_${PROSE_SINGLETON.document.autoIdCounter++}__`;
     }
 
-    PROSE_SINGLETON.document.ids.add(finalId);
-    return finalId;
+    return documentId;
 }
 
 export function isDocument(value: any): value is AnyDocument {

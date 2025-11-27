@@ -6,7 +6,6 @@ export interface Singleton {
     registry: Registry;
     document: {
         autoIdCounter: number;
-        ids: Set<string>;
     };
 }
 
@@ -15,7 +14,6 @@ export const PROSE_SINGLETON: Singleton = {
     registry: new Registry(),
     document: {
         autoIdCounter: 1,
-        ids: new Set<string>(),
     },
 };
 
