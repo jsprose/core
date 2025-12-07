@@ -6,7 +6,7 @@ export async function fillStorage(args: {
     storage: GenericStorage;
     proseElement: ProseElement<AnySchema>;
     storageCreators: Record<string, undefined | CreateStorage<AnySchema>>;
-    step?: (proseElement: ProseElement<AnySchema>) => void;
+    step?: (proseElement: ProseElement<AnySchema>) => void | Promise<void>;
 }): Promise<void> {
     const storage: GenericStorage = args.storage;
 
@@ -23,7 +23,7 @@ export async function fillStorage(args: {
         }
 
         if (args.step) {
-            args.step(proseElement);
+            await args.step(proseElement);
         }
 
         if (proseElement.children) {

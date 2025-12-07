@@ -302,11 +302,14 @@ describe('fillStorage', () => {
                 proseElement,
                 storageCreators,
                 step: (element) => {
+                    storage['_counter'] ??= 0;
+                    storage['_counter'] += 1;
                     steppedElements.push(element.schemaName);
                 },
             });
 
             // Should include the root fragment and all children
+            expect(storage['_counter']).toBe(6);
             expect(steppedElements).toContain('paragraph');
             expect(steppedElements).toContain('image');
             expect(
