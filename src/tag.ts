@@ -1,5 +1,10 @@
 import { normalizeChildren, type NormalizedChildren } from './children.js';
-import { draftElement, isRawElement, type RawElement } from './element.js';
+import {
+    draftElement,
+    isRawElement,
+    type RawElement,
+    type WrapSchemas,
+} from './element.js';
 import { ProseError } from './error.js';
 import type { Registry } from './registry.js';
 import {
@@ -305,8 +310,8 @@ export function ensureTagChildren<TSchemas extends AnySchema | AnySchema[]>(
     children: NormalizedChildren,
     schemas?: TSchemas,
 ): asserts children is [
-    RawElement<TSchemas extends AnySchema[] ? TSchemas[number] : TSchemas>,
-    ...RawElement<TSchemas extends AnySchema[] ? TSchemas[number] : TSchemas>[],
+    WrapSchemas<'raw-prose', TSchemas>[number],
+    ...WrapSchemas<'raw-prose', TSchemas>,
 ] {
     if (children === undefined) {
         throw new ProseError(

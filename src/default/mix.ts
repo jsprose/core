@@ -20,5 +20,5 @@ export const mixTag = defineTag({
     schema: mixSchema,
 })(({ tagName, element, children }) => {
     ensureTagChildren(tagName, children);
-    element.children = children;
+    element.children = children as any;
 });

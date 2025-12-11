@@ -8,6 +8,8 @@ import {
     type BlockSchema,
     type InlinerSchema,
     type AnySchema,
+    type NormalizedChildren,
+    type WrapSchemas,
 } from '@jsprose/core';
 
 describe('Element children schema wrap', () => {
@@ -89,18 +91,12 @@ describe('Element children schema wrap', () => {
 
     it('should wrap complex children schemas', () => {
         type RawProseComplexChildren =
-            | [
-                  RawProseParagraph,
-                  RawElement<typeof textSchema | typeof paragraphSchema>,
-              ]
+            | [RawProseParagraph, RawProseText | RawProseParagraph]
             | [RawProseText]
             | RawProseParagraph[];
 
         type ProseComplexChildren =
-            | [
-                  ProseParagraph,
-                  ProseElement<typeof textSchema | typeof paragraphSchema>,
-              ]
+            | [ProseParagraph, ProseText | ProseParagraph]
             | [ProseText]
             | ProseParagraph[];
 
@@ -111,6 +107,12 @@ describe('Element children schema wrap', () => {
         expectTypeOf<
             ProseComplex['children']
         >().toEqualTypeOf<ProseComplexChildren>();
+    });
+
+    it('should correctly cast AnySchema', () => {
+        expectTypeOf<WrapSchemas<'prose', AnySchema[]>>().toEqualTypeOf<
+            ProseElement<AnySchema>[]
+        >();
     });
 });
 

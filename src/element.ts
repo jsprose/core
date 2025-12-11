@@ -1,5 +1,10 @@
 import { ProseError } from './error.js';
-import { schemaKind, type AnySchema } from './schema.js';
+import {
+    schemaKind,
+    type AnySchema,
+    type BlockSchema,
+    type InlinerSchema,
+} from './schema.js';
 import type { IsAny } from './utils/isAny.js';
 
 /**
@@ -96,6 +101,7 @@ interface SharedProperties<
 
 /**
  * Wraps schemas into their respective RawProse or Prose element types.
+ * Distributes union types outside element wrappers.
  *
  * Examples:
  * ```
@@ -106,10 +112,10 @@ interface SharedProperties<
  *   ---> [RawProseElement<textSchema>, RawProseElement<paragraphSchema>]
  *
  * [paragraphSchema | textSchema] | paragraphSchema[]
- *   ---> [RawProseElement<paragraphSchema | textSchema>] | RawProseElement<paragraphSchema>[]
+ *   ---> [RawProseElement<paragraphSchema> | RawProseElement<textSchema>] | RawProseElement<paragraphSchema>[]
  * ```
  */
-type WrapSchemas<
+export type WrapSchemas<
     Wrapper extends 'raw-prose' | 'prose',
     Schemas,
 > = Schemas extends undefined
@@ -129,11 +135,23 @@ type MapTupleOrArray<
 
 type WrapSingle<Wrapper extends 'raw-prose' | 'prose', Schema> = [
     Schema,
-] extends [AnySchema]
-    ? Wrapper extends 'raw-prose'
-        ? RawElement<Schema>
-        : ProseElement<Schema>
-    : never;
+] extends [never]
+    ? never
+    : [BlockSchema | InlinerSchema] extends [Schema]
+      ? [Schema] extends [BlockSchema | InlinerSchema]
+          ? Wrapper extends 'raw-prose'
+              ? RawElement<Extract<Schema, AnySchema>>
+              : ProseElement<Extract<Schema, AnySchema>>
+          : Schema extends AnySchema
+            ? Wrapper extends 'raw-prose'
+                ? RawElement<Schema>
+                : ProseElement<Schema>
+            : never
+      : Schema extends AnySchema
+        ? Wrapper extends 'raw-prose'
+            ? RawElement<Schema>
+            : ProseElement<Schema>
+        : never;
 
 /**
  * If Storage is `any`, storageKey can be string or undefined.

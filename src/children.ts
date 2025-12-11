@@ -114,7 +114,7 @@ function deepCloneRawElement(
         for (let i = 0; i < cloned.children.length; i++) {
             const originalChild = element.children[i] as RawElement<AnySchema>;
             if (isRawElement(originalChild)) {
-                cloned.children[i] = deepCloneRawElement(originalChild);
+                cloned.children[i] = deepCloneRawElement(originalChild) as any;
             }
         }
     }

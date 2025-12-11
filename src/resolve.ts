@@ -58,7 +58,7 @@ export async function resolveRawElement(args: {
             ...draftElement('prose', schema),
             data: rawElement.data,
             storageKey: rawElement.storageKey,
-            children: resolvedChildren,
+            children: resolvedChildren as any,
         };
 
         if (linkable && schema.linkable) {
