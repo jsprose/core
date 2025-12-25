@@ -43,6 +43,18 @@ export function normalizeChildren(
 
     for (const child of childrenArray) {
         //
+        // <Mix>
+        //
+
+        if (isRawElement(child) && child.schemaName === 'mix') {
+            const nestedNormalized = normalizeChildren(child.children, step);
+            if (nestedNormalized) {
+                normalizedChildren.push(...nestedNormalized);
+            }
+            continue;
+        }
+
+        //
         // Raw Prose ELement
         //
 

@@ -12,6 +12,7 @@ import {
     type Unique,
     defineTag,
     isRawElement,
+    mixSchema,
 } from '@jsprose/core';
 
 const boldSchema = defineSchema({
@@ -235,5 +236,28 @@ describe('normalizeChildren', () => {
         expect(isRawElement(seen[1], textSchema)).toBe(true);
         expect(isRawElement(seen[2], boldSchema)).toBe(true);
         expect(isRawElement(seen[3], textSchema)).toBe(true);
+    });
+
+    it('flattens <Mix> children', () => {
+        const bold1 = makeBold();
+        const bold2 = makeBold();
+
+        const mixElement: RawElement<typeof mixSchema> = {
+            ...draftElement('raw-prose', mixSchema),
+            tagName: 'Mix',
+            data: undefined,
+            storageKey: undefined,
+            children: ['Inner' as any, bold1],
+            hash: 'mix-hash',
+        };
+
+        const out = normalizeChildren(['Start', mixElement, bold2, 'End']);
+        expect(out).toBeDefined();
+        expect(out!.length).toBe(5);
+        expect(out![0].data).toBe('Start');
+        expect(out![1].data).toBe('Inner');
+        expect(out![2].tagName).toBe('bold');
+        expect(out![3].tagName).toBe('bold');
+        expect(out![4].data).toBe('End');
     });
 });
