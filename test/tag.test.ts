@@ -17,6 +17,7 @@ import {
     Registry,
     draftElement,
     ProseError,
+    validTagName,
     type RawElement,
 } from '@jsprose/core';
 
@@ -423,5 +424,21 @@ describe('ensureTagRawProseElement', () => {
         expect(() => ensureTagRawProseElement(element, textTag)).toThrow(
             ProseError,
         );
+    });
+});
+
+describe('validTagName', () => {
+    it('should return true for valid tag names', () => {
+        expect(validTagName('MyTag')).toBe(true);
+        expect(validTagName('Another_Tag123')).toBe(true);
+        expect(validTagName('A')).toBe(true);
+    });
+
+    it('should return false for invalid tag names', () => {
+        expect(validTagName('myTag')).toBe(false);
+        expect(validTagName('123Tag')).toBe(false);
+        expect(validTagName('Tag-Name')).toBe(false);
+        expect(validTagName('Tag Name')).toBe(false);
+        expect(validTagName('')).toBe(false);
     });
 });

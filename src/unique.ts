@@ -1,8 +1,7 @@
 import { type RawElement } from './element.js';
 import { ProseError } from './error.js';
 import type { AnySchema, schemaKind } from './schema.js';
-import type { LinkableTag, Tag } from './tag.js';
-import { validVarName } from './utils/name.js';
+import type { LinkableTag } from './tag.js';
 
 export interface Unique<TTag extends LinkableTag> {
     __JSPROSE_unique: true;
@@ -16,6 +15,12 @@ export interface AnyUnique extends Unique<LinkableTag> {
     tag: LinkableTag;
 }
 
+export type AutoUnique = Omit<AnyUnique, 'tag'> & {
+    tag: typeof autoUniqueTag;
+};
+
+export const autoUniqueTag = { __JSPROSE_autoUniqueTag: true };
+
 /**
  * **Caution:** Normally you don't need to define uniques manually since document definition creates them internally!
  */
@@ -24,7 +29,7 @@ export function defineUnique<TTag extends LinkableTag>(unique: {
     name: string;
     tag: TTag;
 }): Unique<TTag> {
-    if (!validVarName(unique.name)) {
+    if (!validUniqueName(unique.name)) {
         throw new ProseError(`Invalid unique name format "${unique.name}"!`);
     }
 
@@ -47,7 +52,11 @@ Unique "${unique.name}" raw element is already assigned and cannot be reassigned
                 );
             }
 
-            if (value.tagName !== unique.tag.tagName) {
+            const isAutoUnique =
+                (unique as any as AutoUnique).tag.__JSPROSE_autoUniqueTag ===
+                true;
+
+            if (!isAutoUnique && value.tagName !== unique.tag.tagName) {
                 throw new ProseError(
                     `
 Unique "${unique.name}" tag mismatch on raw element assignment!
@@ -107,4 +116,9 @@ export function defineUniqueWrapper<TTag extends LinkableTag>(
 ): (props: { $: Unique<TTag>; children?: undefined }) => RawElement<AnySchema> {
     return (props: { $: Unique<TTag>; children?: undefined }) =>
         wrapper(props.$);
+}
+
+export function validUniqueName(uniqueName: string): boolean {
+    const langVarNameRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+    return langVarNameRegex.test(uniqueName);
 }

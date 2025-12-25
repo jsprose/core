@@ -10,6 +10,7 @@ import {
     isUnique,
     PROSE_REGISTRY,
     isolateProse,
+    validUniqueName,
     type NoTagChildren,
 } from '@jsprose/core';
 
@@ -299,5 +300,41 @@ describe('defineUniqueWrapper', () => {
                 ));
             }).not.toThrow();
         });
+    });
+});
+
+describe('validUniqueName', () => {
+    it('should validate correct unique names', () => {
+        const validNames = [
+            'uniqueName',
+            '_unique_name',
+            'uniqueName123',
+            'UNIQUE_NAME',
+            'u',
+            'a_b_c',
+            'unique123_name456',
+        ];
+
+        for (const name of validNames) {
+            expect(validUniqueName(name), `"${name}" should be valid`).toBe(
+                true,
+            );
+        }
+    });
+
+    it('should invalidate incorrect unique names', () => {
+        const invalidNames = [
+            'unique-name',
+            'unique name',
+            '123uniqueName',
+            'unique.name',
+            'unique$name',
+        ];
+
+        for (const name of invalidNames) {
+            expect(validUniqueName(name), `"${name}" should be invalid`).toBe(
+                false,
+            );
+        }
     });
 });

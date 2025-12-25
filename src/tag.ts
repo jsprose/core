@@ -13,8 +13,7 @@ import {
     type BlockSchema,
     type InlinerSchema,
 } from './schema.js';
-import type { Unique } from './unique.js';
-import { validTagName } from './utils/name.js';
+import type { AutoUnique, Unique } from './unique.js';
 import { hash } from './utils/hash.js';
 
 /**
@@ -149,6 +148,11 @@ export function defineTag<
                     );
                 }
 
+                // If this is an autoUnique, update its tag to match this tag
+                if ((unique as any).tag?.__ERUDIT_autoUniqueTag) {
+                    (unique as any).tag = tag;
+                }
+
                 element.uniqueName = unique.name;
                 unique.rawElement = element as any;
             }
@@ -202,7 +206,9 @@ export type TagProps<
                * Assign this element to document unique.
                * It will allow linking to this element and it also gains human-readable ID after resolving.
                */
-              $?: Unique<Extract<Tag<TTagName, TSchema, any>, LinkableTag>>;
+              $?:
+                  | Unique<Extract<Tag<TTagName, TSchema, any>, LinkableTag>>
+                  | AutoUnique;
           }
         : {});
 
@@ -461,4 +467,10 @@ export function ensureTagRawProseElement<
             `Given element is not a RawProseElement created with <${tag.tagName}>!`,
         );
     }
+}
+
+export function validTagName(tagName: string): boolean {
+    const langVarNameRegex = /^[a-zA-Z][a-zA-Z0-9_]*$/.test(tagName);
+    const firstUppercase = /^[A-Z]/.test(tagName);
+    return langVarNameRegex && firstUppercase;
 }

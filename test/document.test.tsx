@@ -61,6 +61,28 @@ describe('defineDocument', () => {
             }).not.toThrow();
         });
     });
+
+    it('should allow autoUnique to be assigned to tags', () => {
+        isolateProse(() => {
+            PROSE_REGISTRY.setItems(paragraphRegistryItem);
+            const document = defineDocument()(({ autoUnique }) => {
+                return (
+                    <>
+                        <P $={autoUnique()}>First paragraph</P>
+                        <P $={autoUnique()}>Second paragraph</P>
+                    </>
+                );
+            });
+
+            const uniques = document.uniques as any;
+            expect(uniques.__auto_0).toBeDefined();
+            expect(uniques.__auto_0.name).toBe('__auto_0');
+            expect(uniques.__auto_0.rawElement.tagName).toBe('P');
+            expect(uniques.__auto_1).toBeDefined();
+            expect(uniques.__auto_1.name).toBe('__auto_1');
+            expect(uniques.__auto_1.rawElement.tagName).toBe('P');
+        });
+    });
 });
 
 describe('insertDocumentId', () => {
