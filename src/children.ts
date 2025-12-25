@@ -71,6 +71,18 @@ export function normalizeChildren(
         }
 
         //
+        // Array
+        //
+
+        if (Array.isArray(child)) {
+            const nestedNormalized = normalizeChildren(child, step);
+            if (nestedNormalized) {
+                normalizedChildren.push(...nestedNormalized);
+            }
+            continue;
+        }
+
+        //
         // Something else. Just stringify it and possibly merge with previous text node.
         //
 

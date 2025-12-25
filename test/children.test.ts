@@ -197,4 +197,43 @@ describe('normalizeChildren', () => {
         expect(out![1].uniqueName).toBeUndefined();
         expect(out![2].data).toBe('End');
     });
+
+    it('handles nested arrays (flattens, merges strings, elements, and step callbacks)', () => {
+        // Test basic nested array flattening with string merging
+        const out1 = normalizeChildren(['A', ['B', 'C'], 'D']);
+        expect(out1).toBeDefined();
+        expect(out1!.length).toBe(2);
+        expect(out1![0].data).toBe('A');
+        expect(out1![1].data).toBe('BCD');
+
+        // Test deeply nested arrays
+        const out2 = normalizeChildren(['X', ['Y', ['Z']]]);
+        expect(out2).toBeDefined();
+        expect(out2!.length).toBe(3);
+        expect(out2![0].data).toBe('X');
+        expect(out2![1].data).toBe('Y');
+        expect(out2![2].data).toBe('Z');
+
+        // Test nested arrays with elements
+        const bold1 = makeBold();
+        const bold2 = makeBold();
+        const out3 = normalizeChildren(['A', [bold1, 'B'], bold2, ['C', 'D']]);
+        expect(out3).toBeDefined();
+        expect(out3!.length).toBe(5);
+        expect(out3![0].data).toBe('A');
+        expect(out3![1].tagName).toBe('bold');
+        expect(out3![2].data).toBe('B');
+        expect(out3![3].tagName).toBe('bold');
+        expect(out3![4].data).toBe('CD');
+
+        // Test step callback invocation for nested array children
+        const seen: RawElement<AnySchema>[] = [];
+        const bold3 = makeBold();
+        normalizeChildren(['A', ['B', bold3, 'C']], (c) => seen.push(c));
+        expect(seen.length).toBe(4);
+        expect(isRawElement(seen[0], textSchema)).toBe(true);
+        expect(isRawElement(seen[1], textSchema)).toBe(true);
+        expect(isRawElement(seen[2], boldSchema)).toBe(true);
+        expect(isRawElement(seen[3], textSchema)).toBe(true);
+    });
 });
