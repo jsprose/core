@@ -12,6 +12,7 @@ export * from './singleton.js';
 export * from './resolve.js';
 export * from './storage.js';
 export * from './isolate.js';
+export * from './finalized.js';
 export * from './default/text.js';
 export * from './default/mix.js';
 export * from './default/inliners.js';
