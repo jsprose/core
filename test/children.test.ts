@@ -260,4 +260,25 @@ describe('normalizeChildren', () => {
         expect(out![3].tagName).toBe('bold');
         expect(out![4].data).toBe('End');
     });
+
+    it('ignores undefined, null, false, and empty string values', () => {
+        const bold = makeBold();
+        const out = normalizeChildren([
+            'Start',
+            undefined,
+            null,
+            false,
+            '',
+            bold,
+            undefined,
+            'End',
+            null,
+            false,
+        ]);
+        expect(out).toBeDefined();
+        expect(out!.length).toBe(3);
+        expect(out![0].data).toBe('Start');
+        expect(out![1].tagName).toBe('bold');
+        expect(out![2].data).toBe('End');
+    });
 });

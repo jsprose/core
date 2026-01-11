@@ -95,6 +95,19 @@ export function normalizeChildren(
         }
 
         //
+        // Skip undefined, null, false and empty string
+        //
+
+        if (
+            child === undefined ||
+            child === null ||
+            child === false ||
+            child === ''
+        ) {
+            continue;
+        }
+
+        //
         // Something else. Just stringify it and possibly merge with previous text node.
         //
 
